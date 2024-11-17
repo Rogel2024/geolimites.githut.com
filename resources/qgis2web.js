@@ -12,7 +12,7 @@ var map = new ol.Map({
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([-757626.744455, 7341722.666050, 1766278.429070, 8884880.643535], map.getSize());
+map.getView().fit([-886263.405052, 7423740.905011, 1753444.476434, 8966898.882496], map.getSize());
 
 ////small screen definition
     var hasTouchScreen = map.getViewport().classList.contains('ol-touch');
@@ -177,7 +177,7 @@ function onPointerMove(evt) {
     var currentLayer;
     var currentFeatureKeys;
     var clusteredFeatures;
-    var clusterLenght;
+    var clusterLength;
     var popupText = '<ul>';
     map.forEachFeatureAtPixel(pixel, function(feature, layer) {
         if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") == undefined)) {
@@ -191,7 +191,7 @@ function onPointerMove(evt) {
             currentLayer = layer;
             clusteredFeatures = feature.get("features");
             if (clusteredFeatures) {
-				clusterLenght = clusteredFeatures.length;
+				clusterLength = clusteredFeatures.length;
 			}
             var clusterFeature;
             if (typeof clusteredFeatures !== "undefined") {
@@ -242,7 +242,7 @@ function onPointerMove(evt) {
 					if (typeof clusteredFeatures == "undefined") {
 						radius = featureStyle.getImage().getRadius();
 					} else {
-						radius = parseFloat(featureStyle.split('radius')[1].split(' ')[1]) + clusterLenght;
+						radius = parseFloat(featureStyle.split('radius')[1].split(' ')[1]) + clusterLength;
 					}
 
                     highlightStyle = new ol.style.Style({
@@ -531,7 +531,7 @@ var measureControl = (function (Control) {
     typeSelect.id = "type";
 
     var measurementOption = [
-        { value: "LineString", description: "Lenght" },
+        { value: "LineString", description: "Length" },
         { value: "Polygon", description: "Area" }
         ];
     measurementOption.forEach(function (option) {
@@ -890,18 +890,20 @@ bottomAttribution.element.appendChild(attributionList);
 
 
 // Disable "popup on hover" or "highlight on hover" if ol-control mouseover
+var preDoHover = doHover;
+var preDoHighlight = doHighlight;
+var isPopupAllActive = false;
 document.addEventListener('DOMContentLoaded', function() {
-    var preDoHover = doHover;
-	var preDoHighlight = doHighlight;
 	if (doHover || doHighlight) {
 		var controlElements = document.getElementsByClassName('ol-control');
 		for (var i = 0; i < controlElements.length; i++) {
-			controlElements[i].addEventListener('mouseover', function() {
-				if (doHover) { doHover = false; }
-				if (doHighlight) { doHighlight = false; }
+			controlElements[i].addEventListener('mouseover', function() { 
+				doHover = false;
+				doHighlight = false;
 			});
 			controlElements[i].addEventListener('mouseout', function() {
 				doHover = preDoHover;
+				if (isPopupAllActive) { return }
 				doHighlight = preDoHighlight;
 			});
 		}
